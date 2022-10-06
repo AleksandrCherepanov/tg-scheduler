@@ -24,7 +24,8 @@ func main() {
 
 	loggedRouter := middleware.Logging(router)
 	panicRecoveryRouter := middleware.PanicRecovery(loggedRouter)
-	
-	go scheduler.Notify()
-	log.Fatal(http.ListenAndServe(":4000", panicRecoveryRouter))
+
+	notificator := scheduler.GetNotificator()
+	go notificator.StartNotification()
+	log.Println(http.ListenAndServe(":4000", panicRecoveryRouter))
 }

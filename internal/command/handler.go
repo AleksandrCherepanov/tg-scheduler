@@ -26,6 +26,7 @@ func NewCommandHandler(chatId int64, message *telegram.Message) *CommandHandler 
 	commandHandler := &CommandHandler{}
 	commandHandler.handlers = map[string]CommandHandlerInterface{
 		"/start": NewCommandStart(chatId, message),
+		"/set":   NewCommandSet(chatId, message),
 	}
 
 	return commandHandler
