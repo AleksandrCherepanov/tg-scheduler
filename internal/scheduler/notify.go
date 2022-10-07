@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram/client"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/notification"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/user"
 )
 
-const seconds_in_hour = 3600
-const tgNotification_day = time.Thursday
-const tgNotification_utc_hour = 12
+const secondsInHour = 3600
+const tickPeriod = time.Hour
+const notificationDay = time.Friday
+const notificationUtcHour = 16
 
 var notificator *Notificator
 var sender *asyncSender
@@ -48,13 +50,17 @@ func getSender() *asyncSender {
 	return sender
 }
 
-func (n *Notificator) StartNotification() {
+func sleepBeforeNewHour() {
 	currentUTCTime := time.Now().UTC().Unix()
-	secondsPassedHour := currentUTCTime % seconds_in_hour
-	secondsTillNewHour := seconds_in_hour - secondsPassedHour
+	secondsPassedHour := currentUTCTime % secondsInHour
+	secondsTillNewHour := secondsInHour - secondsPassedHour
 	time.Sleep(time.Duration(secondsTillNewHour) * time.Second)
+}
 
-	for range time.Tick(time.Hour) {
+func (n *Notificator) StartNotification() {
+	sleepBeforeNewHour()
+	n.notify()
+	for range time.Tick(tickPeriod) {
 		n.notify()
 	}
 }
@@ -83,16 +89,19 @@ func (s *asyncSender) send() {
 	for {
 		select {
 		case n := <-s.input:
-			fmt.Println(n.userId)
-			fmt.Println(n.message)
+			r := client.NewTelegramResponse(n.userId, n.message, false)
+			res, err := r.Send()
+			fmt.Println(err)
+			fmt.Println(string(res.([]byte)))
 		}
 	}
 }
 
 func (n *Notificator) isCorrectDay() bool {
-	return time.Now().UTC().Weekday() == tgNotification_day
+	return time.Now().UTC().Weekday() == notificationDay
 }
 
 func (n *Notificator) isCorrectTime() bool {
-	return time.Now().UTC().Hour() >= tgNotification_utc_hour
+	currentHour := time.Now().UTC().Hour()
+	return currentHour >= notificationUtcHour && currentHour < notificationUtcHour+1
 }

@@ -31,8 +31,8 @@ func (userStorage *UserStorage) GetAllUsers() map[int64]User {
 }
 
 func (userStorage *UserStorage) CreateUser(id int64, name string) User {
-	userStorage.Mutex.Lock()
-	defer userStorage.Mutex.Unlock()
+	userStorage.Lock()
+	defer userStorage.Unlock()
 
 	user := User{}
 	user.Id = id
@@ -43,8 +43,8 @@ func (userStorage *UserStorage) CreateUser(id int64, name string) User {
 }
 
 func (userStorage *UserStorage) GetUserById(id int64) (User, error) {
-	userStorage.Mutex.Lock()
-	defer userStorage.Mutex.Unlock()
+	userStorage.Lock()
+	defer userStorage.Unlock()
 
 	user, ok := userStorage.userList[id]
 	if !ok {

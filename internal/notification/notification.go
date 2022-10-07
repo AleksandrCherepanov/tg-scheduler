@@ -14,7 +14,7 @@ var notificationStorage *NotificationStorage
 
 func GetNotificationStorage() *NotificationStorage {
 	if notificationStorage == nil {
-		notificationStorage := &NotificationStorage{}
+		notificationStorage = &NotificationStorage{}
 		notificationStorage.notifications = make(map[int64]string)
 	}
 

@@ -34,7 +34,6 @@ func (c *CommandSet) Handle(command string, args []string) (interface{}, error) 
 	if err != nil {
 		return err, nil
 	}
-
 	ns := notification.GetNotificationStorage()
 	ns.Set(user.Id, strings.Join(args, " "))
 	return client.NewTelegramResponse(c.chatId, text.NOTIFICATION_IS_SET, false), nil
