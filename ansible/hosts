@@ -1,0 +1,2 @@
+[hetzner]
+116.202.110.100 ansible_connection=ssh ansible_user=aleksandr

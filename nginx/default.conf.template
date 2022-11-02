@@ -1,0 +1,30 @@
+server {
+	listen ${NGINX_PORT};
+	
+	location /tasks {
+		proxy_pass http://host.docker.internal:3000;
+	}
+
+	location /schedule {
+		proxy_pass http://host.docker.internal:4000;
+	}
+	
+	location /registry/ {
+		proxy_pass http://host.docker.internal:5000/;
+	}
+}
+
+server {
+	listen 443 ssl;
+	
+	ssl_certificate /etc/ssl/tgbot.pem;
+	ssl_certificate_key /etc/ssl/tgbot.key;
+	
+	location /tasks {
+		proxy_pass http://host.docker.internal:3000;
+	}
+
+	location /schedule {
+		proxy_pass http://host.docker.internal:4000;
+	}
+}
