@@ -3,6 +3,7 @@ package command
 import (
 	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram"
 	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram/client"
+	"github.com/AleksandrCherepanov/tg-scheduler/internal/text"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/user"
 )
 
@@ -22,5 +23,5 @@ func NewCommandStart(chatId int64, message *telegram.Message) *CommandStart {
 
 func (c *CommandStart) Handle(command string, args []string) (interface{}, error) {
 	c.userStorage.CreateUser(c.chatId, c.message.Chat.GetName())
-	return client.NewTelegramResponse(c.chatId, "scheduler is started", false), nil
+	return client.NewTelegramResponse(c.chatId, text.USER_CREATED, false), nil
 }

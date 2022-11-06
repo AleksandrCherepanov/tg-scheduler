@@ -1,0 +1,15 @@
+---
+- name: deploy
+  hosts: hetzner
+
+  tasks:
+    - name: copy docker compose to host
+      copy:
+        src: ./docker-compose.yaml
+        dest: /home/aleksandr/docker-compose.yaml
+    - name: docker login
+      shell: docker login --username={{ docker_hub_user }} --password={{ docker_hub_pass }}
+    - name: run app container
+      shell: |
+        docker rm -f tg-scheduler
+        docker-compose -f ./docker-compose.yaml up -d --force-recreate

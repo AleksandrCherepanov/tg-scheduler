@@ -1,0 +1,11 @@
+version: '3.5'
+
+services:
+  app:
+    image: furken142/tg:v0.0.3
+    container_name: tg-scheduler
+    ports:
+      - 4000:4000
+    deploy:
+      restart_policy:
+        condition: on-failure

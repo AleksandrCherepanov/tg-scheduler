@@ -7,6 +7,7 @@ import (
 	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram"
 	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram/client"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/command"
+	"github.com/AleksandrCherepanov/tg-scheduler/internal/text"
 )
 
 type Router struct {
@@ -27,7 +28,7 @@ func (router *Router) WithHandlers(chatId int64, message *telegram.Message) *Rou
 func (router *Router) Resolve(w http.ResponseWriter, req *http.Request) {
 	body, ok := GetParsedBody(req)
 	if !ok {
-		ResponseError(w, "Can't get parsed body")
+		ResponseError(w, text.CANT_GET_BODY)
 		return
 	}
 
@@ -40,18 +41,18 @@ func (router *Router) Resolve(w http.ResponseWriter, req *http.Request) {
 
 	message := update.Message
 	if message == nil {
-		ResponseError(w, "Can't process message")
+		ResponseError(w, text.CANT_PROCESS_MESSAGE)
 		return
 	}
 
 	if message.Entities == nil {
-		ResponseError(w, "Can't process message")
+		ResponseError(w, text.CANT_PROCESS_MESSAGE)
 		return
 	}
 
 	chatId, err := update.Message.GetChatId()
 	if err != nil {
-		ResponseError(w, "Can't process message")
+		ResponseError(w, text.CANT_PROCESS_MESSAGE)
 	}
 
 	var result interface{}
