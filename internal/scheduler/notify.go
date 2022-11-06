@@ -11,8 +11,8 @@ import (
 
 const secondsInHour = 3600
 const tickPeriod = time.Hour
-const notificationDay = time.Friday
-const notificationUtcHour = 16
+const notificationDay = time.Monday
+const notificationUtcHour = 4
 
 var notificator *Notificator
 var sender *asyncSender

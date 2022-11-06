@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN	go build -o ./bin/ ./cmd/
+RUN	GOOS=linux GOARCH=amd64 go build -o ./bin/ ./cmd/
 
 EXPOSE 4000
 

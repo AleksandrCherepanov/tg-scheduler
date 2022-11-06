@@ -1,0 +1,10 @@
+---
+- name: nginx configuration
+  hosts: hetzner
+  become: yes
+
+  tasks:
+    - name: copy configuration to host
+      copy:
+        src: ./nginx/default.conf
+        dest: /etc/nginx/sites-available/default
