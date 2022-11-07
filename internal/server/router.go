@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram"
@@ -67,7 +68,8 @@ func (router *Router) Resolve(w http.ResponseWriter, req *http.Request) {
 	if handleError != nil {
 		tgResponse, ok := handleError.(client.TelegramResponse)
 		if ok {
-			_, err = tgResponse.Send()
+			res, err := tgResponse.Send()
+			log.Printf("%v\n", string(res.([]byte)))
 			if err != nil {
 				ResponseError(w, err.Error())
 				return
@@ -78,7 +80,8 @@ func (router *Router) Resolve(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if tgResult, ok := result.(client.TelegramResponse); ok {
-		_, err = tgResult.Send()
+		res, err := tgResult.Send()
+		log.Printf("%v\n", string(res.([]byte)))
 		if err != nil {
 			ResponseError(w, err.Error())
 			return
