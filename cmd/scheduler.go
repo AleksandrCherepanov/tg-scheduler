@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	config "github.com/AleksandrCherepanov/go_telegram/pkg/telegram/config"
+	"github.com/AleksandrCherepanov/tg-scheduler/internal/api"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/middleware"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/scheduler"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/server"
@@ -21,6 +22,7 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/schedule", server.Resolve).Methods("POST", "GET")
+	api.RegisterRoutes(router)
 
 	loggedRouter := middleware.Logging(router)
 	panicRecoveryRouter := middleware.PanicRecovery(loggedRouter)
