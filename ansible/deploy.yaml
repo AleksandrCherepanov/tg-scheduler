@@ -16,4 +16,5 @@
     - name: run app container
       shell: |
         docker rm -f tg-scheduler
+        docker network prune -f
         docker-compose -f ./docker-compose.yaml up -d --force-recreate

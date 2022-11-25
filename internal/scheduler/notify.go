@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram/client"
@@ -78,9 +79,9 @@ func (n *Notificator) notify() {
 			userId: user.Id,
 		}
 		if err != nil {
-			tn.message = err.Error()
+			tn.message = n.escapeText(err.Error())
 		} else {
-			tn.message = notification.Value
+			tn.message = n.escapeText(notification.Value)
 		}
 
 		if n.isCorrectDay(notification) && n.isCorrectTime(notification) {
@@ -109,4 +110,17 @@ func (n *Notificator) isCorrectDay(ntf notification.Notification) bool {
 func (n *Notificator) isCorrectTime(ntf notification.Notification) bool {
 	currentHour := time.Now().UTC().Hour()
 	return currentHour >= ntf.Hour && currentHour < ntf.Hour+1
+}
+
+func (n *Notificator) escapeText(text string) string {
+	specialChars := []string{
+		"_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!",
+	}
+
+	result := text
+	for _, ch := range specialChars {
+		result = strings.ReplaceAll(result, ch, "\\"+ch)
+	}
+
+	return result
 }

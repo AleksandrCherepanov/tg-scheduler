@@ -39,14 +39,25 @@ func (c *CommandSet) Handle(command string, args []string) (interface{}, error) 
 		return nil, err
 	}
 
-	_, err = c.notificationStorage.UpdateByUserId(
-		user.Id,
-		strings.Join(args, " "),
-		scheduler.NotificationDay,
-		scheduler.NotificationUtcHour,
-	)
-
+	_, err = c.notificationStorage.GetByUserId(user.Id)
+	var ntfErr error
 	if err != nil {
+		_, ntfErr = c.notificationStorage.CreateByUserId(
+			user.Id,
+			strings.Join(args, " "),
+			scheduler.NotificationDay,
+			scheduler.NotificationUtcHour,
+		)
+	} else {
+		_, ntfErr = c.notificationStorage.UpdateByUserId(
+			user.Id,
+			strings.Join(args, " "),
+			scheduler.NotificationDay,
+			scheduler.NotificationUtcHour,
+		)
+	}
+
+	if ntfErr != nil {
 		return nil, err
 	}
 

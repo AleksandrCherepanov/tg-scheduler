@@ -16,4 +16,6 @@
         src: redis/redis.conf
         dest: /home/aleksandr/redis/conf/redis.conf
     - name: run container
-      shell: docker-compose -f /home/aleksandr/redis/docker-compose.yaml up -d --force-recreate
+      shell: |
+        docker network prune -f
+        docker-compose -f /home/aleksandr/redis/docker-compose.yaml up -d --force-recreate

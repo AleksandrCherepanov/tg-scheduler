@@ -12,3 +12,9 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+    networks:
+      - tg_scheduler
+networks:
+  tg_scheduler:
+    name: tg_scheduler
+    driver: bridge

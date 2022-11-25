@@ -4,4 +4,6 @@ deploy-nginx:
 	ansible-playbook nginx.yaml --ask-become-pass
 deploy-app:
 	ansible-playbook deploy.yaml -e @secrets.yaml --ask-vault-pass
+deploy-redis:
+	ansible-playbook redis.yaml
 
