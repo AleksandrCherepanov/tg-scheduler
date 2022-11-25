@@ -5,9 +5,9 @@
 
   tasks:
     - name: build docker image
-      local_action: shell cd ../ && docker build -t furken142/tg:v0.0.4 .
+      local_action: shell cd ../ && docker build -t furken142/tg:v0.0.6 .
     - name: login to registry
       local_action: shell docker login --username={{ docker_hub_user }} --password={{ docker_hub_pass }}
     - name: push docker image to the registry
-      local_action: shell docker push furken142/tg:v0.0.4
+      local_action: shell docker push furken142/tg:v0.0.6
       

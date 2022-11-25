@@ -2,24 +2,27 @@ package scheduler
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AleksandrCherepanov/go_telegram/pkg/telegram/client"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/notification"
+	"github.com/AleksandrCherepanov/tg-scheduler/internal/storage"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/user"
 )
 
 const secondsInHour = 3600
 const tickPeriod = time.Hour
-const notificationDay = time.Monday
-const notificationUtcHour = 4
+const NotificationDay = time.Monday
+const NotificationUtcHour = 4
 
 var notificator *Notificator
 var sender *asyncSender
 
 type Notificator struct {
-	userStorage *user.UserStorage
-	sender      *asyncSender
+	userStorage         user.Storage
+	notificationStorage notification.Storage
+	sender              *asyncSender
 }
 
 type tgNotification struct {
@@ -30,7 +33,10 @@ type tgNotification struct {
 func GetNotificator() *Notificator {
 	if notificator == nil {
 		notificator = &Notificator{}
-		notificator.userStorage = user.GetUserStorage()
+		notificator.userStorage = user.GetUserStorage(storage.GetRedisClient())
+		notificator.notificationStorage = notification.GetNotificationRedisStorage(
+			storage.GetRedisClient(),
+		)
 		notificator.sender = getSender()
 	}
 
@@ -66,19 +72,19 @@ func (n *Notificator) StartNotification() {
 }
 
 func (n *Notificator) notify() {
-	if n.isCorrectDay() && n.isCorrectTime() {
-		users := n.userStorage.GetAllUsers()
-		for _, user := range users {
-			text, err := notification.GetNotificationStorage().Get(user.Id)
-			tn := tgNotification{
-				userId: user.Id,
-			}
-			if err != nil {
-				tn.message = err.Error()
-			} else {
-				tn.message = text.(string)
-			}
+	users := n.userStorage.Get()
+	for _, user := range users {
+		notification, err := n.notificationStorage.GetByUserId(user.Id)
+		tn := tgNotification{
+			userId: user.Id,
+		}
+		if err != nil {
+			tn.message = n.escapeText(err.Error())
+		} else {
+			tn.message = n.escapeText(notification.Value)
+		}
 
+		if n.isCorrectDay(notification) && n.isCorrectTime(notification) {
 			go n.sender.send()
 			n.sender.input <- tn
 		}
@@ -97,11 +103,24 @@ func (s *asyncSender) send() {
 	}
 }
 
-func (n *Notificator) isCorrectDay() bool {
-	return time.Now().UTC().Weekday() == notificationDay
+func (n *Notificator) isCorrectDay(ntf notification.Notification) bool {
+	return time.Now().UTC().Weekday() == ntf.Day
 }
 
-func (n *Notificator) isCorrectTime() bool {
+func (n *Notificator) isCorrectTime(ntf notification.Notification) bool {
 	currentHour := time.Now().UTC().Hour()
-	return currentHour >= notificationUtcHour && currentHour < notificationUtcHour+1
+	return currentHour >= ntf.Hour && currentHour < ntf.Hour+1
+}
+
+func (n *Notificator) escapeText(text string) string {
+	specialChars := []string{
+		"_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!",
+	}
+
+	result := text
+	for _, ch := range specialChars {
+		result = strings.ReplaceAll(result, ch, "\\"+ch)
+	}
+
+	return result
 }

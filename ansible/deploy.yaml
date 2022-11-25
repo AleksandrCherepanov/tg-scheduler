@@ -3,6 +3,10 @@
   hosts: hetzner
 
   tasks:
+    - name: copy config to server
+      copy:
+        src: ./../.env
+        dest: /home/aleksandr/Documents/tg-bot/.env
     - name: copy docker compose to host
       copy:
         src: ./docker-compose.yaml
@@ -12,4 +16,5 @@
     - name: run app container
       shell: |
         docker rm -f tg-scheduler
+        docker network prune -f
         docker-compose -f ./docker-compose.yaml up -d --force-recreate

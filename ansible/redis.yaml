@@ -1,0 +1,21 @@
+---
+- name: run redis docker
+  hosts: hetzner
+
+  tasks:
+    - name: create dirs for volumes
+      shell: |
+        mkdir -p /home/aleksandr/redis/data
+        mkdir -p /home/aleksandr/redis/conf
+    - name: copy docker compose
+      copy:
+        src: redis/docker-compose.yaml
+        dest: /home/aleksandr/redis/docker-compose.yaml
+    - name: copy redis configuration
+      copy:
+        src: redis/redis.conf
+        dest: /home/aleksandr/redis/conf/redis.conf
+    - name: run container
+      shell: |
+        docker network prune -f
+        docker-compose -f /home/aleksandr/redis/docker-compose.yaml up -d --force-recreate
