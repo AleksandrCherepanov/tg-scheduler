@@ -4,16 +4,16 @@ import (
 	"log"
 	"net/http"
 
-	config "github.com/AleksandrCherepanov/go_telegram/pkg/telegram/config"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/api"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/middleware"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/scheduler"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/server"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	_, err := config.GetConfig()
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Can't intitalize config. %v", err.Error())
 	}
@@ -25,7 +25,8 @@ func main() {
 	api.RegisterRoutes(router)
 
 	loggedRouter := middleware.Logging(router)
-	panicRecoveryRouter := middleware.PanicRecovery(loggedRouter)
+	basicAuthRouter := middleware.BasicAuth(loggedRouter)
+	panicRecoveryRouter := middleware.PanicRecovery(basicAuthRouter)
 
 	notificator := scheduler.GetNotificator()
 	go notificator.StartNotification()
