@@ -19,5 +19,5 @@ func ResponseJson(w http.ResponseWriter, data interface{}) {
 
 func ResponseError(w http.ResponseWriter, data interface{}) {
 	log.Printf("ERROR: %v\n", data)
-	ResponseJson(w, "{}")
+	ResponseJson(w, "{\"error\": \""+data.(string)+"\"}")
 }
