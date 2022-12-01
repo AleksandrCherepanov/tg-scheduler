@@ -8,6 +8,7 @@ import (
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/server"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/text"
 	"github.com/AleksandrCherepanov/tg-scheduler/internal/user"
+	validator "github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 )
 
@@ -42,29 +43,30 @@ func (api *UserAPI) GetUserList(res http.ResponseWriter, req *http.Request) {
 
 func (api *UserAPI) GetUser(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
+	resErr := server.GetResponseError(text.INVALID_QUARY_PARAMS, 422)
 	if len(vars) == 0 {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_QUARY_PARAMS)
+		server.ResponseWithError(res, resErr)
 		return
 	}
 
 	if _, ok := vars["id"]; !ok {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_QUARY_PARAMS)
+		server.ResponseWithError(res, resErr)
 		return
 	}
 
 	userId, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_QUARY_PARAMS)
+		server.ResponseWithError(res, resErr)
 		return
 	}
 
 	result, err := api.us.GetById(userId)
 	if err != nil {
 		res.WriteHeader(http.StatusNotFound)
-		server.ResponseError(res, err.Error())
+		server.ResponseWithError(res, server.GetResponseError(err.Error(), 500))
 		return
 	}
 
@@ -74,17 +76,28 @@ func (api *UserAPI) GetUser(res http.ResponseWriter, req *http.Request) {
 func (api *UserAPI) CreateUser(res http.ResponseWriter, req *http.Request) {
 	body, ok := server.GetParsedBody(req)
 	if !ok {
-		server.ResponseError(res, text.CANT_GET_BODY)
+		server.ResponseWithError(res, server.GetResponseError(text.CANT_GET_BODY, 422))
 	}
 
 	newUser := &user.User{}
 	err := json.Unmarshal(body, newUser)
 	if err != nil {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_BODY)
+		server.ResponseWithError(res, server.GetResponseError(text.INVALID_BODY, 422))
 		return
 	}
 
+	jsonValildator := validator.New()
+	err = jsonValildator.Struct(newUser)
+	if err != nil {
+		errorList := err.(validator.ValidationErrors)
+		errTexts := make([]string, 0, len(errorList))
+		for _, e := range errorList {
+			errTexts = append(errTexts, e.Error())
+		}
+		server.ResponseWithError(res, server.GetResponseError(errTexts, 422))
+		return
+	}
 	api.us.Create(newUser.Id, newUser.Name)
 	res.WriteHeader(http.StatusCreated)
 }

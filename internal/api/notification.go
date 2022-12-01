@@ -45,27 +45,27 @@ func (api *NotificationAPI) GetNotification(res http.ResponseWriter, req *http.R
 	vars := mux.Vars(req)
 	if len(vars) == 0 {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_QUARY_PARAMS)
+		server.ResponseWithError(res, server.GetResponseError(text.INVALID_QUARY_PARAMS, 422))
 		return
 	}
 
 	if _, ok := vars["user_id"]; !ok {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_QUARY_PARAMS)
+		server.ResponseWithError(res, server.GetResponseError(text.INVALID_QUARY_PARAMS, 422))
 		return
 	}
 
 	userId, err := strconv.ParseInt(vars["user_id"], 10, 64)
 	if err != nil {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_QUARY_PARAMS)
+		server.ResponseWithError(res, server.GetResponseError(text.INVALID_QUARY_PARAMS, 422))
 		return
 	}
 
 	result, err := api.ns.GetByUserId(userId)
 	if err != nil {
 		res.WriteHeader(http.StatusNotFound)
-		server.ResponseError(res, err.Error())
+		server.ResponseWithError(res, server.GetResponseError(err.Error(), 500))
 		return
 	}
 
@@ -75,14 +75,14 @@ func (api *NotificationAPI) GetNotification(res http.ResponseWriter, req *http.R
 func (api *NotificationAPI) CreateNotification(res http.ResponseWriter, req *http.Request) {
 	body, ok := server.GetParsedBody(req)
 	if !ok {
-		server.ResponseError(res, text.CANT_GET_BODY)
+		server.ResponseWithError(res, server.GetResponseError(text.CANT_GET_BODY, 422))
 	}
 
 	newNotification := &notification.Notification{}
 	err := json.Unmarshal(body, newNotification)
 	if err != nil {
 		res.WriteHeader(http.StatusUnprocessableEntity)
-		server.ResponseError(res, text.INVALID_BODY)
+		server.ResponseWithError(res, server.GetResponseError(text.INVALID_BODY, 422))
 		return
 	}
 
