@@ -1,0 +1,25 @@
+---
+# ansible-playbook -e @secrets.yaml --ask-vault-pass build.yaml
+- name: execute migrations
+  hosts: hetzner
+
+  vars: 
+    migration_path: /home/aleksandr/postgres/migrations
+  tasks:
+    - name: create dirs for migrations
+      shell: |
+        mkdir -p '{{ migration_path }}'
+    - name: copy migrations
+      copy:
+        src: ../db/migrations
+        dest: /home/aleksandr/postgres
+    - name: copy migrations to docker
+      shell: |
+        docker exec -i postgres mkdir -p '{{ migration_path }}'
+        docker cp '{{ migration_path }}' postgres:/home/aleksandr/postgres
+    - name: execute migrations
+      shell: |
+        find '{{ migration_path }}' -name *.sql |
+        perl -e 'print sort{($p=$a)=~s!.*/!!;($q=$b)=~s!.*/!!;$p cmp$q}<>' |
+        xargs printf -- ' -f %s' | 
+        xargs docker exec postgres psql -U '{{ postgres_user }}'

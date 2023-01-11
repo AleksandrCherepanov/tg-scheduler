@@ -1,0 +1,22 @@
+version: '3.5'
+
+services:
+  app:
+    image: postgres:latest
+    container_name: postgres
+    expose:
+      - 5432
+    environment: 
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+    volumes:
+      - /home/aleksandr/postgres/data:/var/lib/postgresql/data
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      - tg_scheduler
+networks:
+  tg_scheduler:
+    name: tg_scheduler
+    driver: bridge

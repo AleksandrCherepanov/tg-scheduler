@@ -1,0 +1,21 @@
+---
+# ansible-playbook -e @secrets.yaml --ask-vault-pass build.yaml
+- name: run postgres docker
+  hosts: hetzner
+
+  tasks:
+    - name: create dirs for volumes
+      shell: |
+        mkdir -p /home/aleksandr/postgres/data
+    - name: copy docker compose
+      copy:
+        src: postgresql/docker-compose.yaml
+        dest: /home/aleksandr/postgres/docker-compose.yaml
+    - name: run container
+      environment:
+        POSTGRES_USER: '{{ postgres_user }}'
+        POSTGRES_PASSWORD: '{{ postgres_password }}'
+      shell: |
+        docker network prune -f
+        docker-compose -f /home/aleksandr/postgres/docker-compose.yaml up -d --force-recreate
+

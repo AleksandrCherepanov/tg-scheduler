@@ -8,13 +8,12 @@ import (
 )
 
 func RegisterRoutes(r *mux.Router) {
-	router := NewRouter()
 	userAPI := GetUserAPI(user.GetUserStorage(storage.GetRedisClient()))
 	r.HandleFunc("/api/user", userAPI.GetUserList).Methods("GET")
 	r.HandleFunc("/api/user/{id:\\d+}", userAPI.GetUser).Methods("GET")
 	r.HandleFunc("/api/user", userAPI.CreateUser).Methods("POST")
-	r.HandleFunc("/api/user/{id:\\d+}", router.Resolve).Methods("PUT")
-	r.HandleFunc("/api/user/{id:\\d+}", router.Resolve).Methods("DELETE")
+	r.HandleFunc("/api/user/{id:\\d+}", userAPI.UpdateUser).Methods("PUT")
+	r.HandleFunc("/api/user/{id:\\d+}", userAPI.DeleteUser).Methods("DELETE")
 
 	notificationAPI := GetNotificationAPI(
 		notification.GetNotificationRedisStorage(
@@ -24,6 +23,6 @@ func RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/api/notification", notificationAPI.GetNotificationList).Methods("GET")
 	r.HandleFunc("/api/notification/{user_id:\\d+}", notificationAPI.GetNotification).Methods("GET")
 	r.HandleFunc("/api/notification", notificationAPI.CreateNotification).Methods("POST")
-	r.HandleFunc("/api/notification/{user_id:\\d+}", router.Resolve).Methods("PUT")
-	r.HandleFunc("/api/notification/{user_id:\\d+}", router.Resolve).Methods("DELETE")
+	r.HandleFunc("/api/notification/{user_id:\\d+}", notificationAPI.UpdateNotification).Methods("PUT")
+	r.HandleFunc("/api/notification/{user_id:\\d+}", notificationAPI.DeleteNotification).Methods("DELETE")
 }

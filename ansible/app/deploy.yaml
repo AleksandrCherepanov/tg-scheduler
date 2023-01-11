@@ -5,7 +5,7 @@
   tasks:
     - name: copy config to server
       copy:
-        src: ./../.env
+        src: ./../../.env
         dest: /home/aleksandr/.env
     - name: copy docker compose to host
       copy:

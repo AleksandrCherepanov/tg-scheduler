@@ -28,7 +28,7 @@ func ResponseJson(w http.ResponseWriter, data interface{}) {
 
 	w.Header().Set("Content-Type", "application/json")
 	statusCode := 200
-	res, ok := data.(ResponseError)
+	res, ok := data.(*ResponseError)
 	if ok {
 		statusCode = res.StatusCode
 	}
