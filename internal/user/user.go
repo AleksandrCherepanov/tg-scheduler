@@ -19,8 +19,8 @@ type Storage interface {
 }
 
 type User struct {
-	Id   int64  `json:"id"`
-	Name string `json:"name"`
+	Id   int64  `json:"id" validate:"required,min=1"`
+	Name string `json:"name" validate:"required,min=1"`
 }
 
 type UserRedisStorage struct {

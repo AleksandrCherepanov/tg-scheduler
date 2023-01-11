@@ -29,31 +29,31 @@ func (router *Router) WithHandlers(chatId int64, message *telegram.Message) *Rou
 func (router *Router) Resolve(w http.ResponseWriter, req *http.Request) {
 	body, ok := GetParsedBody(req)
 	if !ok {
-		ResponseError(w, text.CANT_GET_BODY)
+		ResponseWithError(w, GetResponseError(text.CANT_GET_BODY, 422))
 		return
 	}
 
 	update := &telegram.Update{}
 	err := json.Unmarshal(body, update)
 	if err != nil {
-		ResponseError(w, err.Error())
+		ResponseWithError(w, GetResponseError(err.Error(), 422))
 		return
 	}
 
 	message := update.Message
 	if message == nil {
-		ResponseError(w, text.CANT_PROCESS_MESSAGE)
+		ResponseWithError(w, GetResponseError(text.CANT_PROCESS_MESSAGE, 422))
 		return
 	}
 
 	if message.Entities == nil {
-		ResponseError(w, text.CANT_PROCESS_MESSAGE)
+		ResponseWithError(w, GetResponseError(text.CANT_PROCESS_MESSAGE, 422))
 		return
 	}
 
 	chatId, err := update.Message.GetChatId()
 	if err != nil {
-		ResponseError(w, text.CANT_PROCESS_MESSAGE)
+		ResponseWithError(w, GetResponseError(text.CANT_PROCESS_MESSAGE, 422))
 	}
 
 	var result interface{}
@@ -71,11 +71,11 @@ func (router *Router) Resolve(w http.ResponseWriter, req *http.Request) {
 			res, err := tgResponse.Send()
 			log.Printf("%v\n", string(res.([]byte)))
 			if err != nil {
-				ResponseError(w, err.Error())
+				ResponseWithError(w, GetResponseError(err.Error(), 500))
 				return
 			}
 		}
-		ResponseError(w, handleError.Error())
+		ResponseWithError(w, GetResponseError(handleError.Error(), 500))
 		return
 	}
 
@@ -83,7 +83,7 @@ func (router *Router) Resolve(w http.ResponseWriter, req *http.Request) {
 		res, err := tgResult.Send()
 		log.Printf("%v\n", string(res.([]byte)))
 		if err != nil {
-			ResponseError(w, err.Error())
+			ResponseWithError(w, GetResponseError(err.Error(), 500))
 			return
 		}
 	}

@@ -10,3 +10,11 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+  redis:
+    image: redis:latest
+    container_name: redis
+    expose:
+      - 6379
+    deploy:
+      restart_policy:
+        condition: on-failure

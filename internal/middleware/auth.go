@@ -17,12 +17,18 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		user, pass, ok := req.BasicAuth()
 		if !ok {
-			server.ResponseError(w, "Authorization header is not set")
+			server.ResponseWithError(
+				w,
+				server.GetResponseError("Authorization header is not set", 401),
+			)
 			return
 		}
 
 		if user != os.Getenv("basicUser") || pass != os.Getenv("basicPass") {
-			server.ResponseError(w, "Authorization data is not valid")
+			server.ResponseWithError(
+				w,
+				server.GetResponseError("Authorization header is not set", 401),
+			)
 			return
 		}
 

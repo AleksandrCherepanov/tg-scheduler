@@ -20,10 +20,10 @@ type Storage interface {
 }
 
 type Notification struct {
-	UserId int64        `json:"user_id"`
-	Value  string       `json:"value"`
-	Day    time.Weekday `json:"day"`
-	Hour   int          `json:"hour"`
+	UserId int64        `json:"user_id" validate:"required,min=1"`
+	Value  string       `json:"value" validate:"required"`
+	Day    time.Weekday `json:"day" validate:"required,max=6"`
+	Hour   int          `json:"hour" validate:"required,min=0,max=23"`
 }
 
 func NewNotification(userId int64, value string, day time.Weekday, hour int) *Notification {

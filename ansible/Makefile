@@ -1,9 +1,13 @@
 build-image:
-	ansible-playbook build.yaml -e @secrets.yaml --ask-vault-pass
+	ansible-playbook app/build.yaml -e @secrets.yaml --ask-vault-pass
 deploy-nginx: 
 	ansible-playbook nginx.yaml --ask-become-pass
 deploy-app:
-	ansible-playbook deploy.yaml -e @secrets.yaml --ask-vault-pass
+	ansible-playbook app/deploy.yaml -e @secrets.yaml --ask-vault-pass
 deploy-redis:
 	ansible-playbook redis.yaml
+deploy-postgres:
+	ansible-playbook postgresql.yaml -e @secrets.yaml --ask-vault-pass
+deploy-migrations:
+	ansible-playbook migrations.yaml -e @secrets.yaml --ask-vault-pass
 
