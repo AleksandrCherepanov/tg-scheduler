@@ -2,6 +2,7 @@
 # ansible-playbook -e @secrets.yaml --ask-vault-pass build.yaml
 - name: execute migrations
   hosts: hetzner
+  gather_facts: no
 
   vars: 
     migration_path: /home/aleksandr/postgres/migrations
@@ -13,13 +14,14 @@
       copy:
         src: ../db/migrations
         dest: /home/aleksandr/postgres
-    - name: copy migrations to docker
-      shell: |
-        docker exec -i postgres mkdir -p '{{ migration_path }}'
-        docker cp '{{ migration_path }}' postgres:/home/aleksandr/postgres
+    - name: define postgres host
+      command: docker container inspect -f {%raw%}'{{ .NetworkSettings.Networks.tg_scheduler.IPAddress }}'{%endraw%} postgres
+      register: postgres_host_raw
+
+    - name: extract postgres host
+      set_fact:
+        postgres_host: "{{ postgres_host_raw.stdout_lines[0] }}"
+
     - name: execute migrations
       shell: |
-        find '{{ migration_path }}' -name *.sql |
-        perl -e 'print sort{($p=$a)=~s!.*/!!;($q=$b)=~s!.*/!!;$p cmp$q}<>' |
-        xargs printf -- ' -f %s' | 
-        xargs docker exec postgres psql -U '{{ postgres_user }}'
+       migrate -path '{{ migration_path }}' -database "postgresql://{{postgres_user}}:{{postgres_password}}@{{ postgres_host }}:5432/tg_scheduler?sslmode=disable" -verbose up 1

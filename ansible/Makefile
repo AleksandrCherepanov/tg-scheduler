@@ -11,3 +11,4 @@ deploy-postgres:
 deploy-migrations:
 	ansible-playbook migrations.yaml -e @secrets.yaml --ask-vault-pass
 
+.PHONY: build-image deploy-nginx deploy-app deploy-redis deploy-postgres deploy-migrations

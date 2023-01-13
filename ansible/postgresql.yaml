@@ -2,6 +2,7 @@
 # ansible-playbook -e @secrets.yaml --ask-vault-pass build.yaml
 - name: run postgres docker
   hosts: hetzner
+  gather_facts: no
 
   tasks:
     - name: create dirs for volumes
